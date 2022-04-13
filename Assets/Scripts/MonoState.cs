@@ -18,5 +18,5 @@ public abstract class MonoState : IMonoState {
     public virtual void Exit() => OnExit?.Invoke();
     public virtual void FixedUpdate() => OnFixedUpdate?.Invoke();
     public virtual void LateUpdate() => OnLateUpdate?.Invoke();
-    public virtual void Update() => OnFixedUpdate?.Invoke();
+    public virtual void Update() => OnUpdate?.Invoke();
 }

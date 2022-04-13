@@ -15,7 +15,7 @@ public class StateMachine {
         var result = new StateTransision(CurrentState, toState);
         CurrentState?.Exit();
         CurrentState = toState;
-        OnStateChange.Invoke(result);
+        OnStateChange?.Invoke(result);
         CurrentState.Enter();
         return result;
     }

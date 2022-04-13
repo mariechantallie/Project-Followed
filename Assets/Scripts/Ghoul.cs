@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,24 +6,42 @@ using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class Ghoul : MonoBehaviour {
+    const float DistanceToTargetCheckDelay = 0.1f;
+
     [SerializeField] Transform target;
-    [field: SerializeField] public List<Transform> PatrolPoints { get; private set; } = new List<Transform>();
+    [SerializeField] PatrolPath path;
+    [SerializeField] float patrolDelay = 1f;
+
+    public bool IsPatrolling { get; private set; } = true;
+
     NavMeshAgent agent;
+    IEnumerator patrolCoroutine;
 
-    private void Awake() {
+    void Awake() {
         agent = GetComponent<NavMeshAgent>();
+        patrolCoroutine = Patrol();
     }
 
-    private void Update() {
-        agent.SetDestination(target.position);
+    void Start() {
+        StartCoroutine(patrolCoroutine);
     }
+
+    bool IsAtPatrolPoint => (!agent.pathPending && !agent.hasPath && IsAgentCloseToTarget);
+    bool IsAgentCloseToTarget => agent.remainingDistance <= agent.stoppingDistance;
 
     private IEnumerator Patrol() {
-        WaitForSeconds delay = new WaitForSeconds(1f);
+        var patrolReachedDelay = new WaitForSeconds(patrolDelay);
+        var distanceCheckDelay = new WaitForSeconds(DistanceToTargetCheckDelay);
+
         while(true) {
-            if(Vector3.Distance(agent.transform.position, target.position) < 1f) {
+            if(IsPatrolling) {
+                agent.SetDestination(path.CurrentPoint.position);
+                if(IsAtPatrolPoint) {
+                    yield return patrolReachedDelay;
+                    path.NextPosition();
+                }
+                yield return distanceCheckDelay;
             }
-            yield return delay;
         }
     }
 }
