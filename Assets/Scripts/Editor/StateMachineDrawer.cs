@@ -12,15 +12,16 @@ public class StateMachineDrawer : PropertyDrawer {
         target ??= fieldInfo.GetValue(property.serializedObject.targetObject) as StateMachine;
 
         EditorGUI.BeginProperty(position, label, property);
-        EditorGUI.PrefixLabel(position, label);
+        EditorGUI.LabelField(position, label);
 
         UpdatePosition(ref position);
-        currentSelection = EditorGUI.Popup(position, CurrentActiveStateIndex, GetCurrentStates());
+        if(HasStates) {
+            currentSelection = EditorGUI.Popup(position, CurrentActiveStateIndex, GetCurrentStates());
 
-        if(GUI.changed) {
-            target.ChangeState(target.States[currentSelection]);
+            if(GUI.changed) {
+                target.ChangeState(target.States[currentSelection]);
+            }
         }
-
         EditorGUI.EndProperty();
         GUI.enabled = HasStates;
     }
